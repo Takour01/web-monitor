@@ -224,6 +224,14 @@ export default function Dashboard() {
                           Go To history
                         </Button>
                       </Link>
+                      <Link href={"/logs/" + url.id}>
+                        <Button
+                          variant="destructive"
+                          className="bg-blue-500 hover:bg-blue-600"
+                        >
+                          Go To logs
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -235,5 +243,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-`Collectives™ on Stack Overflow Find centralized, trusted content and collaborate around the technologies you use most. Learn more about Collectives Teams Q&A for work Connect and share knowledge within a single location that is structured and easy to search. Learn more about Teams Get early access and see previews of new features. Learn more about Labs What is Jython and is it useful at all? [closed] Ask Question Asked 15 years, 2 months ago Modified 5 years, 6 months ago Viewed 37k times 32 I know Python,…ve equinumerous powersets? tcolorbox with tikz matrix inside crops content Why is the past perfect tense used in this sentence? How was a book by Mark Twain, "Outlines of History" or "Glances at History", *completely* suppressed? What does the 3D label next to a person's name mean in Microsoft Teams? Simplifying a trigonometric expression involving ArcTan more hot questions <div><img src="/posts/1859865/ivc/5894?prg=a75bc720-6ee4-47e2-b9c9-72e26c025f3f" class="dno" alt="" width="0" height="0"></div>default`;
