@@ -21,6 +21,47 @@ import {
 } from "@/components/ui/select";
 // import { toast } from "@/components/ui/toast";
 
+const everyData = [
+  { value: 1, label: "Every 1 min" },
+  { value: 30, label: "Every 30 min" },
+  { value: 60, label: "Every 1 hour" },
+  { value: 180, label: "Every 3 hours" },
+  { value: 1440, label: "Every day" },
+  { value: 2880, label: "Every 2 days" },
+];
+const atDataMinits = [
+  { value: 0, label: "At 00 min" },
+  { value: 15, label: "At 15 min" },
+  { value: 30, label: "At 30 min" },
+  { value: 45, label: "At 45 min" },
+];
+const atDataHours = [
+  { value: 0, label: "At 00 hours" },
+  { value: 1, label: "At 1 hours" },
+  { value: 2, label: "At 2 hours" },
+  { value: 3, label: "At 3 hours" },
+  { value: 4, label: "At 4 hours" },
+  { value: 5, label: "At 5 hours" },
+  { value: 6, label: "At 6 hours" },
+  { value: 7, label: "At 7 hours" },
+  { value: 8, label: "At 8 hours" },
+  { value: 9, label: "At 9 hours" },
+  { value: 10, label: "At 10 hours" },
+  { value: 11, label: "At 11 hours" },
+  { value: 12, label: "At 12 hours" },
+  { value: 13, label: "At 13 hours" },
+  { value: 14, label: "At 14 hours" },
+  { value: 15, label: "At 15 hours" },
+  { value: 16, label: "At 16 hours" },
+  { value: 17, label: "At 17 hours" },
+  { value: 18, label: "At 18 hours" },
+  { value: 19, label: "At 19 hours" },
+  { value: 20, label: "At 20 hours" },
+  { value: 21, label: "At 21 hours" },
+  { value: 22, label: "At 22 hours" },
+  { value: 23, label: "At 23 hours" },
+];
+
 export default function Dashboard() {
   const [urls, setUrls] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,15 +82,14 @@ export default function Dashboard() {
     const res = await fetch("/api/urls", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: newUrl }),
+      body: JSON.stringify({ url: newUrl, at: newAt, every: newEvery }),
     });
     const data = await res.json();
     if (data.message) {
-      setUrls([
-        ...urls,
-        { id: Date.now(), url: newUrl, createdAt: new Date() },
-      ]);
+      console.log(data);
+      setUrls([...urls, data.url[0]]);
       setNewUrl("");
+
       toast.success("URL added successfully");
     } else {
       toast.error("Failed to add URL");
@@ -89,12 +129,13 @@ export default function Dashboard() {
                 <SelectValue placeholder="Every" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Every 1 min</SelectItem>
-                <SelectItem value="30">Every 30 min</SelectItem>
-                <SelectItem value="60">Every 1 hour</SelectItem>
-                <SelectItem value="180">Every 3 hours</SelectItem>
-                <SelectItem value="1440">Every day</SelectItem>
-                <SelectItem value="2880">Every 2 day</SelectItem>
+                {everyData.map((every) => {
+                  return (
+                    <SelectItem value={every.value + ""} key={every.label}>
+                      {every.label}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
 
@@ -103,10 +144,21 @@ export default function Dashboard() {
                 <SelectValue placeholder="At" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="0">At 00 min</SelectItem>
-                <SelectItem value="15">At 15 min</SelectItem>
-                <SelectItem value="30">At 30 min</SelectItem>
-                <SelectItem value="45">At 45 min</SelectItem>
+                {newEvery >= 1440
+                  ? atDataHours.map((every) => {
+                      return (
+                        <SelectItem value={every.value + ""} key={every.label}>
+                          {every.label}
+                        </SelectItem>
+                      );
+                    })
+                  : atDataMinits.map((every) => {
+                      return (
+                        <SelectItem value={every.value + ""} key={every.label}>
+                          {every.label}
+                        </SelectItem>
+                      );
+                    })}
               </SelectContent>
             </Select>
 
@@ -127,6 +179,7 @@ export default function Dashboard() {
                 <TableRow className="bg-gray-100 w-full ">
                   <TableCell className="font-semibold">URL</TableCell>
                   <TableCell className="font-semibold">Created at</TableCell>
+                  <TableCell className="font-semibold">interval</TableCell>
                   <TableCell className="font-semibold">Actions</TableCell>
                 </TableRow>
                 {urls.map((url: any) => (
@@ -134,6 +187,18 @@ export default function Dashboard() {
                     <TableCell>{url.url}</TableCell>
                     <TableCell>
                       {new Date(url.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {
+                        everyData.find((every) => every.value === url.every)
+                          ?.label
+                      }{" "}
+                      {url.every > 60
+                        ? url.every >= 1440
+                          ? atDataHours.find((at) => at.value === url.at)?.label
+                          : atDataMinits.find((at) => at.value === url.at)
+                              ?.label
+                        : ""}
                     </TableCell>
                     <TableCell className="flex gap-3">
                       <Button
@@ -145,7 +210,6 @@ export default function Dashboard() {
                       </Button>
                       <Link href={"/summaries/" + url.id}>
                         <Button
-                          onClick={() => handleDeleteUrl(url.id)}
                           variant="destructive"
                           className="bg-blue-500 hover:bg-blue-600"
                         >
@@ -154,7 +218,6 @@ export default function Dashboard() {
                       </Link>
                       <Link href={"/history/" + url.id}>
                         <Button
-                          onClick={() => handleDeleteUrl(url.id)}
                           variant="destructive"
                           className="bg-blue-500 hover:bg-blue-600"
                         >
@@ -172,3 +235,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+`Collectives™ on Stack Overflow Find centralized, trusted content and collaborate around the technologies you use most. Learn more about Collectives Teams Q&A for work Connect and share knowledge within a single location that is structured and easy to search. Learn more about Teams Get early access and see previews of new features. Learn more about Labs What is Jython and is it useful at all? [closed] Ask Question Asked 15 years, 2 months ago Modified 5 years, 6 months ago Viewed 37k times 32 I know Python,…ve equinumerous powersets? tcolorbox with tikz matrix inside crops content Why is the past perfect tense used in this sentence? How was a book by Mark Twain, "Outlines of History" or "Glances at History", *completely* suppressed? What does the 3D label next to a person's name mean in Microsoft Teams? Simplifying a trigonometric expression involving ArcTan more hot questions <div><img src="/posts/1859865/ivc/5894?prg=a75bc720-6ee4-47e2-b9c9-72e26c025f3f" class="dno" alt="" width="0" height="0"></div>default`;

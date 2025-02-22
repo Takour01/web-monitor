@@ -14,11 +14,13 @@ export async function POST(req: Request) {
     try {
         const { url, every, at } = await req.json();
         if (!url) return NextResponse.json({ error: "URL is required" }, { status: 400 });
-        console.log(url);
+        console.log(url, every, at);
 
-        await db.insert(monitoredUrls).values({ url, createdAt: new Date(), every, at });
 
-        return NextResponse.json({ message: "URL added successfully" });
+
+        const createdUrl = await db.insert(monitoredUrls).values({ url, createdAt: new Date(), every, at }).returning();
+
+        return NextResponse.json({ message: "URL added successfully", url: createdUrl });
     } catch (error) {
         console.log(error);
 
