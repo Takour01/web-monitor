@@ -4,9 +4,11 @@ import { pageSnapshots } from "@/lib/db/schema";
 import { NextRequest } from "next/server";
 import { desc, eq } from "drizzle-orm";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const { id } = params;
+        const { id } = await params;
+
+
         if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
 
         const history = await db
