@@ -19,6 +19,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { AlertDialogHeader } from "@/components/ui/alert-dialog";
 // import { toast } from "@/components/ui/toast";
 
 const everyData = [
@@ -232,6 +243,7 @@ export default function Dashboard() {
                           Go To logs
                         </Button>
                       </Link>
+                      <EditUrl url={url} />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -243,3 +255,118 @@ export default function Dashboard() {
     </div>
   );
 }
+
+const EditUrl = ({
+  url,
+}: {
+  url: {
+    at: number;
+    every: number;
+    url: string;
+    id: number;
+  };
+}) => {
+  const [newEvery, setNewEvery] = useState(url.every); // Default: 1 hour
+  const [newAt, setNewAt] = useState(url.at); // Default: start of the hour
+  const handleEditUrl = async () => {
+    const res = await fetch("/api/urls", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: url.url,
+        at: newAt,
+        every: newEvery,
+        id: url.id,
+      }),
+    });
+    const data = await res.json();
+    if (data.message) {
+      console.log(data);
+      toast.success("URL config edited successfully", {
+        onAutoClose() {
+          window.location.reload();
+        },
+        onDismiss() {
+          window.location.reload();
+        },
+      });
+    } else {
+      toast.error("Failed to add URL");
+    }
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button variant="destructive" className="bg-blue-500 hover:bg-blue-600">
+          Edit
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete your
+            account and remove your data from our servers.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-3">
+          <Select
+            onValueChange={(value) => setNewEvery(parseInt(value))}
+            value={newEvery.toString()}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Every" />
+            </SelectTrigger>
+            <SelectContent>
+              {everyData.map((every) => {
+                return (
+                  <SelectItem value={every.value + ""} key={every.label}>
+                    {every.label}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+
+          <Select
+            onValueChange={(value) => setNewAt(parseInt(value))}
+            value={newAt.toString()}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="At" />
+            </SelectTrigger>
+            <SelectContent>
+              {newEvery >= 1440
+                ? atDataHours.map((every) => {
+                    return (
+                      <SelectItem value={every.value + ""} key={every.label}>
+                        {every.label}
+                      </SelectItem>
+                    );
+                  })
+                : atDataMinits.map((every) => {
+                    return (
+                      <SelectItem value={every.value + ""} key={every.label}>
+                        {every.label}
+                      </SelectItem>
+                    );
+                  })}
+            </SelectContent>
+          </Select>
+        </div>
+        <DialogFooter>
+          <DialogClose>
+            <Button
+              variant="destructive"
+              className="bg-blue-500 hover:bg-blue-600"
+              onClick={handleEditUrl}
+            >
+              submit
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};

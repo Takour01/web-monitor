@@ -27,6 +27,23 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Failed to add URL" }, { status: 500 });
     }
 }
+export async function PUT(req: Request) {
+    try {
+        const { url, every, at, id } = await req.json();
+        if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
+        console.log(url, every, at);
+
+
+
+        const updatedUrl = await await db.update(monitoredUrls).set({ url, every, at }).where(eq(monitoredUrls.id, id)).returning();
+
+        return NextResponse.json({ message: "URL added successfully", url: updatedUrl });
+    } catch (error) {
+        console.log(error);
+
+        return NextResponse.json({ error: "Failed to add URL" }, { status: 500 });
+    }
+}
 
 // Delete a monitored URL
 export async function DELETE(req: Request) {
