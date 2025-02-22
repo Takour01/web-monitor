@@ -24,3 +24,14 @@ export const aiSummaries = pgTable("ai_summaries", {
     summary: text("summary").notNull(),
     createdAt: timestamp("created_at").defaultNow(),
 });
+
+
+// Table for scape logs
+export const scrapeLogs = pgTable("scrape_logs", {
+    id: serial("id").primaryKey(),
+    urlId: integer("url_id").references(() => monitoredUrls.id, { onDelete: "cascade" }),
+    status: text("status").notNull(), // "Success" or "Failed"
+    runTime: timestamp("run_time").defaultNow(),
+    errorMessage: text("error_message"),
+});
+
